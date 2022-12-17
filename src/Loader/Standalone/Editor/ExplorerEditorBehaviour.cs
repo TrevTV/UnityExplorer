@@ -33,7 +33,7 @@ namespace UnityExplorer.Loader.Standalone
 
             ExplorerEditorLoader.Initialize();
             DontDestroyOnLoad(this);
-            this.gameObject.hideFlags = HideFlags.HideAndDontSave;
+            //this.gameObject.hideFlags = HideFlags.HideAndDontSave;
         }
 
         internal void OnApplicationQuit()

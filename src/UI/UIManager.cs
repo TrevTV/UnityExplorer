@@ -1,11 +1,13 @@
-﻿using UnityExplorer.Config;
-using UnityExplorer.CSConsole;
+﻿using BoneLib;
+using MelonLoader;
+using UnityExplorer.Config;
 using UnityExplorer.Inspectors;
 using UnityExplorer.UI.Panels;
 using UnityExplorer.UI.Widgets;
 using UniverseLib.Input;
 using UniverseLib.UI;
 using UniverseLib.UI.Models;
+using AssetBundle = UnityEngine.AssetBundle;
 
 namespace UnityExplorer.UI
 {
@@ -65,6 +67,8 @@ namespace UnityExplorer.UI
             }
         }
 
+        public static Transform trueBase;
+
         // Initialization
 
         internal static void InitUI()
@@ -73,6 +77,32 @@ namespace UnityExplorer.UI
 
             UIRootRect = UIRoot.GetComponent<RectTransform>();
             UICanvas = UIRoot.GetComponent<Canvas>();
+
+            trueBase = UIRootRect.transform.parent;
+            UICanvas.renderMode = RenderMode.WorldSpace;
+            //Debug.Log(UIRootRect.transform.parent.name);
+            /*foreach (Canvas c in trueBase.GetComponentsInChildren<Canvas>(true))
+            {
+                c.renderMode = RenderMode.WorldSpace;
+            }*/
+
+            UICanvas.transform.localScale = new Vector3(21, 21, 21);
+            trueBase.localScale = new Vector3(0.0004500835f, 0.0004500835f, 0.0004500835f);
+            trueBase.localScale /= 20;
+
+            Assembly assembly = Assembly.GetExecutingAssembly();
+
+            AssetBundle bundle = null;
+            using (Stream resourceStream = assembly.GetManifestResourceStream("UnityExplorer.required.bundle"))
+            {
+                using MemoryStream memoryStream = new MemoryStream();
+                resourceStream.CopyTo(memoryStream);
+                bundle = AssetBundle.LoadFromMemory(memoryStream.ToArray());
+            }
+            GameObject go = bundle.LoadAllAssets().First().Cast<GameObject>();
+            MelonLogger.Msg("AS DDDDDDD   ASKLDJAHSIOLD JKLAS UD IOASJKLD YASJ " + go.name);
+            GameObject req = GameObject.Instantiate(go, UICanvas.transform).Cast<GameObject>();
+            RectTransform reqPlane = req.transform.GetChild(1).GetComponent<RectTransform>();
 
             DisplayManager.Init();
 
@@ -87,8 +117,6 @@ namespace UnityExplorer.UI
             UIPanels.Add(Panels.AutoCompleter, new AutoCompleteModal(UiBase));
             UIPanels.Add(Panels.ObjectExplorer, new ObjectExplorerPanel(UiBase));
             UIPanels.Add(Panels.Inspector, new InspectorPanel(UiBase));
-            UIPanels.Add(Panels.CSConsole, new CSConsolePanel(UiBase));
-            UIPanels.Add(Panels.HookManager, new HookManagerPanel(UiBase));
             UIPanels.Add(Panels.Freecam, new FreeCamPanel(UiBase));
             UIPanels.Add(Panels.Clipboard, new ClipboardPanel(UiBase));
             UIPanels.Add(Panels.ConsoleLog, new LogPanel(UiBase));
@@ -100,7 +128,6 @@ namespace UnityExplorer.UI
 
             // Call some initialize methods
             Notification.Init();
-            ConsoleController.Init();
 
             // Failsafe fix, in some games all dropdowns displayed values are blank on startup for some reason.
             foreach (Dropdown dropdown in UIRoot.GetComponentsInChildren<Dropdown>(true))
@@ -108,21 +135,25 @@ namespace UnityExplorer.UI
 
             Initializing = false;
 
-            if (ConfigManager.Hide_On_Startup.Value)
-                ShowMenu = false;
+            /*if (ConfigManager.Hide_On_Startup.Value)
+                ShowMenu = false;*/
         }
 
         // Main UI Update loop
 
         public static void Update()
         {
-            if (!UIRoot)
+            if (!UIRoot || !BoneLib.Player.controllersExist)
                 return;
 
-            // If we are doing a Mouse Inspect, we don't need to update anything else.
-            if (MouseInspector.Instance.TryUpdate())
-                return;
+            if (trueBase.parent != BoneLib.Player.leftController.transform)
+            {
+                trueBase.parent = BoneLib.Player.leftController.transform;
+                trueBase.localPosition = new Vector3(0, 0, 0.5f);
+                trueBase.localRotation = Quaternion.identity;
 
+                //BoneLib.Player.rightController.gameObject.AddComponent<IUILaserPointer>();
+            }
             // Update Notification modal
             Notification.Update();
 
@@ -131,12 +162,16 @@ namespace UnityExplorer.UI
                 UniverseLib.Config.ConfigManager.Force_Unlock_Mouse = !UniverseLib.Config.ConfigManager.Force_Unlock_Mouse;
 
             // update the timescale value
-            timeScaleWidget.Update();
+            //timeScaleWidget.Update();
 
             // check screen dimension change
-            Display display = DisplayManager.ActiveDisplay;
-            if (display.renderingWidth != lastScreenWidth || display.renderingHeight != lastScreenHeight)
-                OnScreenDimensionsChanged();
+            //Display display = DisplayManager.ActiveDisplay;
+            //if (display.renderingWidth != lastScreenWidth || display.renderingHeight != lastScreenHeight)
+            //    OnScreenDimensionsChanged();
+
+            //ExplorerCore.Log($"Updating to leftController with scale {UIRootRect.localScale.x},{UIRootRect.localScale.y},{UIRootRect.localScale.z}");
+            //UIRootRect.localScale /= 1.08f;
+            //trueBase.position = GameObject.Find("Cube").transform.position;
         }
 
         // Panels

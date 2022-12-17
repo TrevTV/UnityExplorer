@@ -17,11 +17,11 @@ namespace UnityExplorer.Runtime
 #endif
             Instance.SetupEvents();
 
-            LoadBlacklistString(ConfigManager.Reflection_Signature_Blacklist.Value);
+            /*LoadBlacklistString(ConfigManager.Reflection_Signature_Blacklist.Value);
             ConfigManager.Reflection_Signature_Blacklist.OnValueChanged += (string val) =>
             {
                 LoadBlacklistString(val);
-            };
+            };*/
         }
 
         public abstract void SetupEvents();

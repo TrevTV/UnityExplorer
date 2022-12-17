@@ -77,6 +77,12 @@
         <DefineConstants>CPP,STANDALONE,UNHOLLOWER</DefineConstants>
         <AssemblyName>UnityExplorer.STANDALONE.IL2CPP</AssemblyName>
     </PropertyGroup>
+    <ItemGroup>
+      <None Remove="required.bundle" />
+    </ItemGroup>
+    <ItemGroup>
+      <EmbeddedResource Include="required.bundle" />
+    </ItemGroup>
 
     <!-- ~~~~~ NUGET ~~~~~ -->
     <ItemGroup>
@@ -177,10 +183,6 @@
             <HintPath>..\lib\unhollowed\Il2CppSystem.Core.dll</HintPath>
             <Private>False</Private>
         </Reference>
-        <Reference Include="UnityEngine">
-            <HintPath>..\lib\unhollowed\UnityEngine.dll</HintPath>
-            <Private>False</Private>
-        </Reference>
         <Reference Include="UnityEngine.AudioModule">
             <HintPath>..\lib\unhollowed\UnityEngine.AudioModule.dll</HintPath>
             <Private>False</Private>
@@ -253,4 +255,30 @@
             <Private>False</Private>
         </Reference>
     </ItemGroup>
+    <ItemGroup>
+      <Reference Include="Assembly-CSharp">
+        <HintPath>C:\Program Files (x86)\Steam\steamapps\common\BONELAB\MelonLoader\Managed\Assembly-CSharp.dll</HintPath>
+      </Reference>
+      <Reference Include="BoneLib">
+        <HintPath>C:\Program Files (x86)\Steam\steamapps\common\BONELAB\Mods\BoneLib.dll</HintPath>
+      </Reference>
+      <Reference Include="SLZ.Algorithms">
+        <HintPath>C:\Program Files (x86)\Steam\steamapps\common\BONELAB\MelonLoader\Managed\SLZ.Algorithms.dll</HintPath>
+      </Reference>
+      <Reference Include="SLZ.Marrow">
+        <HintPath>C:\Program Files (x86)\Steam\steamapps\common\BONELAB\MelonLoader\Managed\SLZ.Marrow.dll</HintPath>
+      </Reference>
+      <Reference Include="SLZ.Marrow.SDK">
+        <HintPath>C:\Program Files (x86)\Steam\steamapps\common\BONELAB\MelonLoader\Managed\SLZ.Marrow.SDK.dll</HintPath>
+      </Reference>
+      <Reference Include="SLZ.Serialize">
+        <HintPath>C:\Program Files (x86)\Steam\steamapps\common\BONELAB\MelonLoader\Managed\SLZ.Serialize.dll</HintPath>
+      </Reference>
+      <Reference Include="UnityEngine.AssetBundleModule">
+        <HintPath>C:\Program Files (x86)\Steam\steamapps\common\BONELAB\MelonLoader\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+      <Exec Command="adb push &quot;$(TargetPath)&quot; /sdcard/Android/data/com.StressLevelZero.BONELAB/files/Mods&#xD;&#xA;rem COPY &quot;$(TargetPath)&quot; &quot;D:\UnityProjects\AICodeTest\Assets\UnityExplorer.Editor\Runtime&quot;" />
+    </Target>
 </Project>

@@ -25,7 +25,7 @@ namespace UnityExplorer
 
         public string UnhollowedModulesFolder => Path.Combine(
             Path.GetDirectoryName(MelonHandler.ModsDirectory),
-            Path.Combine("MelonLoader", "Managed"));
+            Path.Combine("melonloader", "etc", "managed"));
 
         public ConfigHandler ConfigHandler => _configHandler;
         public MelonLoaderConfigHandler _configHandler;
