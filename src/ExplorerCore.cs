@@ -68,6 +68,9 @@ namespace UnityExplorer
 
             UIManager.InitUI();
 
+            var c = BoneLib.BoneMenu.MenuManager.CreateCategory("UnityExplorer", Color.red);
+            c.CreateBoolElement("Active", Color.white, UIManager.ShowMenu, (b) => UIManager.ShowMenu = b);
+
             Log($"{NAME} {VERSION} ({Universe.Context}) initialized.");
 
             // InspectorManager.Inspect(typeof(Tests.TestClass));

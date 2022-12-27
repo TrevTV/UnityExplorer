@@ -277,6 +277,9 @@
       <Reference Include="UnityEngine.AssetBundleModule">
         <HintPath>C:\Program Files (x86)\Steam\steamapps\common\BONELAB\MelonLoader\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
       </Reference>
+      <Reference Include="UnityEngine.UIElementsModule">
+        <HintPath>C:\Program Files (x86)\Steam\steamapps\common\BONELAB\MelonLoader\Managed\UnityEngine.UIElementsModule.dll</HintPath>
+      </Reference>
     </ItemGroup>
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
       <Exec Command="adb push &quot;$(TargetPath)&quot; /sdcard/Android/data/com.StressLevelZero.BONELAB/files/Mods&#xD;&#xA;rem COPY &quot;$(TargetPath)&quot; &quot;D:\UnityProjects\AICodeTest\Assets\UnityExplorer.Editor\Runtime&quot;" />

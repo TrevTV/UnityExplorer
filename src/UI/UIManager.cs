@@ -90,7 +90,7 @@ namespace UnityExplorer.UI
             trueBase.localScale = new Vector3(0.0004500835f, 0.0004500835f, 0.0004500835f);
             trueBase.localScale /= 20;
 
-            Assembly assembly = Assembly.GetExecutingAssembly();
+            /*Assembly assembly = Assembly.GetExecutingAssembly();
 
             AssetBundle bundle = null;
             using (Stream resourceStream = assembly.GetManifestResourceStream("UnityExplorer.required.bundle"))
@@ -98,11 +98,11 @@ namespace UnityExplorer.UI
                 using MemoryStream memoryStream = new MemoryStream();
                 resourceStream.CopyTo(memoryStream);
                 bundle = AssetBundle.LoadFromMemory(memoryStream.ToArray());
-            }
-            GameObject go = bundle.LoadAllAssets().First().Cast<GameObject>();
-            MelonLogger.Msg("AS DDDDDDD   ASKLDJAHSIOLD JKLAS UD IOASJKLD YASJ " + go.name);
-            GameObject req = GameObject.Instantiate(go, UICanvas.transform).Cast<GameObject>();
-            RectTransform reqPlane = req.transform.GetChild(1).GetComponent<RectTransform>();
+            }*/
+            //GameObject go = bundle.LoadAllAssets().First().Cast<GameObject>();
+            //MelonLogger.Msg("AS DDDDDDD   ASKLDJAHSIOLD JKLAS UD IOASJKLD YASJ " + go.name);
+            //GameObject req = GameObject.Instantiate(go, UICanvas.transform).Cast<GameObject>();
+            //RectTransform reqPlane = req.transform.GetChild(1).GetComponent<RectTransform>();
 
             DisplayManager.Init();
 
@@ -152,7 +152,7 @@ namespace UnityExplorer.UI
                 trueBase.localPosition = new Vector3(0, 0, 0.5f);
                 trueBase.localRotation = Quaternion.identity;
 
-                //BoneLib.Player.rightController.gameObject.AddComponent<IUILaserPointer>();
+                BoneLib.Player.rightController.gameObject.AddComponent<IUILaserPointer>();
             }
             // Update Notification modal
             Notification.Update();
@@ -285,13 +285,13 @@ namespace UnityExplorer.UI
 
             // Hide menu button
 
-            closeBtn = UIFactory.CreateButton(navbarPanel, "CloseButton", ConfigManager.Master_Toggle.Value.ToString());
+            /*closeBtn = UIFactory.CreateButton(navbarPanel, "CloseButton", ConfigManager.Master_Toggle.Value.ToString());
             UIFactory.SetLayoutElement(closeBtn.Component.gameObject, minHeight: 25, minWidth: 60, flexibleWidth: 0);
             RuntimeHelper.SetColorBlock(closeBtn.Component, new Color(0.63f, 0.32f, 0.31f),
-                new Color(0.81f, 0.25f, 0.2f), new Color(0.6f, 0.18f, 0.16f));
+                new Color(0.81f, 0.25f, 0.2f), new Color(0.6f, 0.18f, 0.16f));*/
 
             ConfigManager.Master_Toggle.OnValueChanged += Master_Toggle_OnValueChanged;
-            closeBtn.OnClick += OnCloseButtonClicked;
+            /*closeBtn.OnClick += OnCloseButtonClicked;*/
         }
     }
 }

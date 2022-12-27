@@ -1,4 +1,9 @@
-﻿using UnityEngine;
+﻿using SLZ.Rig;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+using UnityExplorer.UI;
+using static Il2CppSystem.Globalization.CultureInfo;
 
 namespace UnityExplorer
 {
@@ -15,15 +20,16 @@ namespace UnityExplorer
         private GameObject hitPoint;
         private GameObject pointer;
 
-
         private float _distanceLimit;
 
-        // Use this for initialization
+        // Input Module Dragging/Hover Implementations
+        private GameObject currentDragging;
+        private GameObject currentPoint;
+        private BaseEventData eventData;
+
         void Start()
         {
-            // todo:    let the user choose a mesh for laser pointer ray and hit point
-            //          or maybe abstract the whole menu control some more and make the 
-            //          laser pointer a module.
+            eventData = new BaseEventData(UniverseLib.Input.EventSystemHelper.CurrentEventSystem);
             pointer = GameObject.CreatePrimitive(PrimitiveType.Cube);
             pointer.transform.SetParent(transform, false);
             pointer.transform.localScale = new Vector3(laserThickness, laserThickness, 100.0f);
@@ -40,59 +46,32 @@ namespace UnityExplorer
             GameObject.DestroyImmediate(hitPoint.GetComponent<SphereCollider>());
             GameObject.DestroyImmediate(pointer.GetComponent<BoxCollider>());
             
-            Material newMaterial = new Material(Shader.Find("Wacki/LaserPointer"));
+            Material newMaterial = new Material(Shader.Find("Universal Render Pipeline/Lit (PBR Workflow)"));
 
-            newMaterial.SetColor("_Color", color);
+            newMaterial.SetColor("_BaseColor", color);
             pointer.GetComponent<MeshRenderer>().material = newMaterial;
             hitPoint.GetComponent<MeshRenderer>().material = newMaterial;
-            // initialize concrete class
-            Initialize();
-            
-            // register with the LaserPointerInputModule
-            if(LaserPointerInputModule.instance == null) {
-                new GameObject().AddComponent<LaserPointerInputModule>();
-            }
-            
-
-            LaserPointerInputModule.instance.AddController(this);
-        }
-
-        void OnDestroy()
-        {
-            if(LaserPointerInputModule.instance != null)
-                LaserPointerInputModule.instance.RemoveController(this);
-        }
-
-        protected void Initialize() { }
-        public void OnEnterControl(GameObject control) { }
-        public void OnExitControl(GameObject control) { }
-        public bool ButtonDown()
-        {
-            if (!BoneLib.Player.controllersExist)
-                return false;
-            return BoneLib.Player.rightController.GetAButtonDown();
-        }
-        public bool ButtonUp()
-        {
-            if (!BoneLib.Player.controllersExist)
-                return false;
-            return BoneLib.Player.rightController.GetAButtonUp();
         }
 
         protected void Update()
         {
+            if (!BoneLib.Player.controllersExist) return;
+
             Ray ray = new Ray(transform.position, transform.forward);
             RaycastHit hitInfo;
-            bool bHit = Physics.Raycast(ray, out hitInfo);
+            int uiMask = 1 << LayerMask.NameToLayer("UI");
+            bool bHit = Physics.Raycast(ray, out hitInfo, 100, uiMask, QueryTriggerInteraction.Collide);
 
             float distance = 100.0f;
 
-            if(bHit) {
+            if (bHit)
+            {
                 distance = hitInfo.distance;
             }
 
             // ugly, but has to do for now
-            if(_distanceLimit > 0.0f) {
+            if (_distanceLimit > 0.0f)
+            {
                 distance = Mathf.Min(distance, _distanceLimit);
                 bHit = true;
             }
@@ -100,16 +79,61 @@ namespace UnityExplorer
             pointer.transform.localScale = new Vector3(laserThickness, laserThickness, distance);
             pointer.transform.localPosition = new Vector3(0.0f, 0.0f, distance * 0.5f);
 
-            if(bHit) {
+            bool buttonDown = BoneLib.Player.rightController.GetPrimaryInteractionButtonDown();
+            bool buttonUp = BoneLib.Player.rightController.GetPrimaryInteractionButtonUp();
+            if (bHit && hitInfo.collider.isTrigger && InHierarchyOf(hitInfo.collider.transform, "UniverseLibCanvas"))
+            {
                 hitPoint.SetActive(true);
                 hitPoint.transform.localPosition = new Vector3(0.0f, 0.0f, distance);
+                Selectable b = hitInfo.collider.GetComponent<Selectable>();
+                currentPoint = b.gameObject;
+                if (b != null)
+                {
+                    if (buttonDown)
+                    {
+                        ExecuteEvents.Execute(currentPoint, eventData, ExecuteEvents.submitHandler);
+                        ExecuteEvents.Execute(currentPoint, eventData, ExecuteEvents.beginDragHandler);
+                        currentDragging = currentPoint;
+                    }
+                }
+
+                if (buttonUp)
+                {
+                    if (currentDragging != null)
+                    {
+                        ExecuteEvents.Execute(currentDragging, eventData, ExecuteEvents.endDragHandler);
+                        ExecuteEvents.Execute(currentPoint, eventData, ExecuteEvents.dropHandler);
+                        currentDragging = null;
+                    }
+                }
             }
-            else {
+            else
+            {
                 hitPoint.SetActive(false);
             }
 
             // reset the previous distance limit
             _distanceLimit = -1.0f;
+
+            if (currentDragging != null)
+            {
+                //data.pointerEvent.current = data.currentPressed;
+                ExecuteEvents.Execute(currentDragging, eventData, ExecuteEvents.dragHandler);
+                //ExecuteEvents.Execute(controller.gameObject, data.pointerEvent, ExecuteEvents.dragHandler);
+            }
+        }
+
+        public static bool InHierarchyOf(Transform t, string parentName)
+        {
+            if (t.name == parentName)
+                return true;
+
+            if (t.parent == null)
+                return false;
+
+            t = t.parent;
+
+            return InHierarchyOf(t, parentName);
         }
 
         // limits the laser distance for the current frame
